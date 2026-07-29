@@ -81,7 +81,10 @@
       }
 
       try {
-        await this.waitFor(() => this.findClearControl(), 5_000);
+        await this.waitFor(
+          () => this.findClearHost() || this.findClearControl(),
+          5_000
+        );
       } catch {
         warn("Clear control did not become available in time; using the toolbar fallback.");
       }
@@ -134,6 +137,7 @@
 
     mountToolbarButton() {
       this.document.getElementById(TOOLBAR_ITEM_ID)?.remove();
+      this.document.getElementById(BUTTON_ID)?.remove();
 
       const target = this.document.querySelector(
         "#zen-sidebar-top-buttons-customization-target"
@@ -141,12 +145,6 @@
       if (!target) {
         throw new Error("Zen sidebar toolbar target was not found");
       }
-
-      const item = this.document.createXULElement("toolbaritem");
-      item.id = TOOLBAR_ITEM_ID;
-      item.setAttribute("skipintoolbarset", "true");
-      item.setAttribute("overflows", "false");
-      item.classList.add("zen-smart-tabs-toolbar-item");
 
       const button = this.document.createXULElement("toolbarbutton");
       button.id = BUTTON_ID;
@@ -168,8 +166,22 @@
         this.openSettings();
       });
 
-      item.appendChild(button);
       const clearControl = this.findClearControl();
+      const clearHost = this.findClearHost(clearControl);
+      if (clearHost) {
+        const clearIsDirectChild = clearControl?.parentNode === clearHost;
+        clearHost.insertBefore(button, clearIsDirectChild ? clearControl : null);
+        this.toolbarItem = button;
+        this.toolbarButton = button;
+        return;
+      }
+
+      const item = this.document.createXULElement("toolbaritem");
+      item.id = TOOLBAR_ITEM_ID;
+      item.setAttribute("skipintoolbarset", "true");
+      item.setAttribute("overflows", "false");
+      item.classList.add("zen-smart-tabs-toolbar-item");
+      item.appendChild(button);
       const clearItem = clearControl?.closest("toolbaritem") || clearControl;
       if (clearItem?.parentNode) {
         clearItem.parentNode.insertBefore(item, clearItem);
@@ -182,6 +194,13 @@
       }
       this.toolbarItem = item;
       this.toolbarButton = button;
+    }
+
+    findClearHost(clearControl = null) {
+      return (
+        clearControl?.closest(".vertical-pinned-tabs-container-separator") ||
+        this.document.querySelector(".vertical-pinned-tabs-container-separator")
+      );
     }
 
     findClearControl() {
@@ -225,6 +244,7 @@
       this.overlay?.remove();
       this.toolbarItem?.remove();
       this.document.getElementById(TOOLBAR_ITEM_ID)?.remove();
+      this.document.getElementById(BUTTON_ID)?.remove();
 
       this.apiKey = "";
       this.proposal = null;

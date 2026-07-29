@@ -5,6 +5,9 @@
 }
 
 #zen-smart-tabs-button {
+  min-width: 32px;
+  min-height: 32px;
+  margin-inline: 0 4px;
   list-style-image: url("chrome://browser/skin/zen-icons/sparkles.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
