@@ -11,11 +11,20 @@
   min-width: 32px;
   min-height: 32px;
   margin-inline: 0 4px;
+  padding: 2px 7px !important;
+  color: var(--toolbar-color, currentColor) !important;
+  background: color-mix(in srgb, currentColor 12%, transparent) !important;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent) !important;
+  border-radius: 6px !important;
 }
 
 #zen-smart-tabs-button .toolbarbutton-text {
   display: inline-block !important;
-  font-size: 18px;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700;
   line-height: 1;
 }
 
