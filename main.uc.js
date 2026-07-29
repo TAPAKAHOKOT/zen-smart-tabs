@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.3.3";
+  const VERSION = "0.3.4";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -920,6 +920,7 @@
         `Create at most ${maxGroups} groups. Prefer 3-6 coherent groups over many tiny groups.`,
         "Use every tab id at most once. Never invent or alter tab ids.",
         "Folder names must be concise, specific, neutral, contain no emoji, and be at most 32 characters.",
+        "Return only groups that should become folders. Do not return IDs for ungrouped tabs.",
         languageInstruction,
         "Return only data matching the supplied JSON schema.",
       ].join("\n");
@@ -927,6 +928,9 @@
       const payload = {
         model,
         store: false,
+        reasoning: {
+          effort: "low",
+        },
         input: [
           {
             role: "developer",
@@ -966,16 +970,12 @@
                     required: ["name", "tab_ids"],
                   },
                 },
-                ungrouped_tab_ids: {
-                  type: "array",
-                  items: { type: "string" },
-                },
               },
-              required: ["groups", "ungrouped_tab_ids"],
+              required: ["groups"],
             },
           },
         },
-        max_output_tokens: 3000,
+        max_output_tokens: 8192,
       };
 
       const response = await this.window.fetch(API_URL, {
