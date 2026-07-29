@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.7";
+  const VERSION = "0.2.8";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -253,8 +253,8 @@
 
     findClearHost(clearControl = null) {
       return (
-        clearControl?.closest(".vertical-pinned-tabs-container-separator") ||
-        this.document.querySelector(".vertical-pinned-tabs-container-separator") ||
+        clearControl?.closest(".pinned-tabs-container-separator") ||
+        this.document.querySelector(".pinned-tabs-container-separator") ||
         (clearControl?.closest("menupopup, popup, panel")
           ? null
           : clearControl?.parentElement) ||
@@ -263,6 +263,14 @@
     }
 
     findClearControl() {
+      const clearHost = this.document.querySelector(
+        ".pinned-tabs-container-separator"
+      );
+      const clearButton = clearHost?.querySelector("toolbarbutton");
+      if (clearButton) {
+        return clearButton;
+      }
+
       const visibleClearLabel = [...this.document.querySelectorAll("*")].find(node => {
         if (node.childElementCount !== 0 || node.closest("menupopup, popup, panel")) {
           return false;
