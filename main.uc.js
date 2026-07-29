@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.3.2";
+  const VERSION = "0.3.3";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -144,8 +144,7 @@
       const button = this.document.createXULElement("toolbarbutton");
       button.id = BUTTON_ID;
       button.classList.add(
-        "toolbarbutton-1",
-        "chromeclass-toolbar-additional",
+        "zen-workspace-close-unpinned-tabs-button",
         "zen-smart-tabs-toolbar-button"
       );
       button.setAttribute("label", "✦");
@@ -160,11 +159,6 @@
         event.stopPropagation();
         this.openSettings();
       });
-      button.style.setProperty("display", "inline-flex", "important");
-      button.style.setProperty("visibility", "visible", "important");
-      button.style.setProperty("opacity", "1", "important");
-      button.style.setProperty("min-width", "32px", "important");
-      button.style.setProperty("min-height", "32px", "important");
 
       if (clearHost) {
         const clearIsDirectChild = clearControl?.parentNode === clearHost;

@@ -1,25 +1,7 @@
 /* Zen Smart Tabs — browser chrome styles */
 
-#zen-smart-tabs-toolbar-item {
-  min-width: 32px;
-}
-
 #zen-smart-tabs-button {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 0.65 !important;
-  min-width: 24px;
-  min-height: 22px;
-  margin: 0 3px 0 0;
-  padding: 0 4px !important;
-  color: inherit !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-}
-
-#zen-smart-tabs-button:hover {
-  opacity: 1 !important;
+  margin-inline-end: 3px;
 }
 
 #zen-smart-tabs-button .toolbarbutton-icon {
@@ -27,15 +9,7 @@
 }
 
 #zen-smart-tabs-button .toolbarbutton-text {
-  display: flex !important;
-  justify-content: center;
-  padding: 0 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: inherit !important;
-  font-size: 15px !important;
-  font-weight: 500;
-  line-height: 1;
+  font-size: 13px;
 }
 
 #zen-smart-tabs-overlay,
