@@ -1,0 +1,33 @@
+{
+  "id": "zen-smart-tabs",
+  "name": "Zen Smart Tabs",
+  "description": "AI grouping of current-space tabs into native Zen folders using the OpenAI Responses API.",
+  "author": "Local user",
+  "version": "0.1.0",
+  "createdAt": "2026-07-29",
+  "updatedAt": "2026-07-29",
+  "fork": [
+    "zen"
+  ],
+  "ai": "yes",
+  "style": {
+    "chrome": "chrome.css"
+  },
+  "scripts": {
+    "main.uc.js": {
+      "name": "Zen Smart Tabs",
+      "description": "Adds the Smart Tabs button, preview dialog, OpenAI request, native-folder creation, and undo.",
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ],
+      "loadOrder": 10
+    }
+  },
+  "supportsUnload": true,
+  "tags": [
+    "AI",
+    "Tabs",
+    "Folders",
+    "Productivity"
+  ]
+}

@@ -1,0 +1,499 @@
+/* Zen Smart Tabs — browser chrome styles */
+
+#zen-smart-tabs-toolbar-item {
+  min-width: 32px;
+}
+
+#zen-smart-tabs-button {
+  list-style-image: url("chrome://browser/skin/zen-icons/sparkles.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+}
+
+#zen-smart-tabs-button .toolbarbutton-text {
+  display: none;
+}
+
+#zen-smart-tabs-overlay,
+#zen-smart-tabs-overlay * {
+  box-sizing: border-box;
+}
+
+#zen-smart-tabs-overlay {
+  --zst-bg: var(--arrowpanel-background, var(--toolbar-bgcolor, #202124));
+  --zst-fg: var(--arrowpanel-color, var(--toolbar-color, #f5f5f5));
+  --zst-muted: color-mix(in srgb, var(--zst-fg) 62%, transparent);
+  --zst-border: color-mix(in srgb, var(--zst-fg) 15%, transparent);
+  --zst-soft: color-mix(in srgb, var(--zst-fg) 7%, transparent);
+  --zst-softer: color-mix(in srgb, var(--zst-fg) 4%, transparent);
+  --zst-accent: var(--zen-primary-color, AccentColor);
+  --zst-accent-fg: var(--zen-primary-color-foreground, AccentColorText);
+
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--zst-fg);
+  font: message-box;
+  background: rgba(0, 0, 0, 0.46);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+#zen-smart-tabs-overlay.zst-overlay-open {
+  opacity: 1;
+}
+
+#zen-smart-tabs-overlay .zst-panel {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(820px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--zst-fg);
+  background: var(--zst-bg);
+  border: 1px solid var(--zst-border);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  transform: translateY(8px) scale(0.99);
+  transition: transform 140ms ease;
+}
+
+#zen-smart-tabs-overlay.zst-overlay-open .zst-panel {
+  transform: translateY(0) scale(1);
+}
+
+#zen-smart-tabs-overlay .zst-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--zst-border);
+}
+
+#zen-smart-tabs-overlay .zst-heading-wrap {
+  min-width: 0;
+}
+
+#zen-smart-tabs-overlay .zst-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+#zen-smart-tabs-overlay .zst-subtitle {
+  margin: 7px 0 0;
+  color: var(--zst-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#zen-smart-tabs-overlay .zst-icon-button {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--zst-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#zen-smart-tabs-overlay .zst-icon-button:hover {
+  color: var(--zst-fg);
+  background: var(--zst-soft);
+}
+
+#zen-smart-tabs-overlay .zst-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 22px 24px 24px;
+}
+
+#zen-smart-tabs-overlay .zst-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#zen-smart-tabs-overlay .zst-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+#zen-smart-tabs-overlay .zst-field-label {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+#zen-smart-tabs-overlay .zst-field-help,
+#zen-smart-tabs-overlay .zst-footnote {
+  color: var(--zst-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#zen-smart-tabs-overlay .zst-footnote {
+  margin: 0;
+}
+
+#zen-smart-tabs-overlay .zst-input,
+#zen-smart-tabs-overlay .zst-select {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 11px;
+  color: var(--zst-fg);
+  background: color-mix(in srgb, var(--zst-bg) 92%, var(--zst-fg) 8%);
+  border: 1px solid var(--zst-border);
+  border-radius: 10px;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+#zen-smart-tabs-overlay .zst-input:focus,
+#zen-smart-tabs-overlay .zst-select:focus {
+  border-color: var(--zst-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--zst-accent) 28%, transparent);
+}
+
+#zen-smart-tabs-overlay .zst-input:disabled,
+#zen-smart-tabs-overlay .zst-select:disabled {
+  opacity: 0.5;
+}
+
+#zen-smart-tabs-overlay .zst-settings-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.1fr 0.72fr;
+  gap: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: var(--zst-fg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#zen-smart-tabs-overlay input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--zst-accent);
+}
+
+#zen-smart-tabs-overlay .zst-inventory {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px 14px;
+  background: var(--zst-soft);
+  border: 1px solid var(--zst-border);
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+#zen-smart-tabs-overlay .zst-inventory span {
+  color: var(--zst-muted);
+  font-size: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-banner {
+  padding: 12px 14px;
+  border: 1px solid var(--zst-border);
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+#zen-smart-tabs-overlay .zst-banner-warning {
+  background: color-mix(in srgb, #e6a23c 12%, transparent);
+  border-color: color-mix(in srgb, #e6a23c 35%, transparent);
+}
+
+#zen-smart-tabs-overlay .zst-banner-error,
+#zen-smart-tabs-overlay .zst-inline-error {
+  background: color-mix(in srgb, #e05252 12%, transparent);
+  border-color: color-mix(in srgb, #e05252 35%, transparent);
+}
+
+#zen-smart-tabs-overlay .zst-banner-success {
+  background: color-mix(in srgb, #44b678 12%, transparent);
+  border-color: color-mix(in srgb, #44b678 35%, transparent);
+}
+
+#zen-smart-tabs-overlay .zst-banner-neutral,
+#zen-smart-tabs-overlay .zst-inline-neutral {
+  background: var(--zst-soft);
+}
+
+#zen-smart-tabs-overlay .zst-banner-with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-status:empty {
+  display: none;
+}
+
+#zen-smart-tabs-overlay .zst-inline-message {
+  padding: 10px 12px;
+  border: 1px solid var(--zst-border);
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+#zen-smart-tabs-overlay .zst-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+#zen-smart-tabs-overlay .zst-button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+#zen-smart-tabs-overlay .zst-button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+#zen-smart-tabs-overlay .zst-button-primary {
+  color: var(--zst-accent-fg);
+  background: var(--zst-accent);
+}
+
+#zen-smart-tabs-overlay .zst-button-primary:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+#zen-smart-tabs-overlay .zst-button-secondary {
+  color: var(--zst-fg);
+  background: var(--zst-soft);
+  border-color: var(--zst-border);
+}
+
+#zen-smart-tabs-overlay .zst-button-secondary:not(:disabled):hover,
+#zen-smart-tabs-overlay .zst-button-ghost:not(:disabled):hover {
+  background: color-mix(in srgb, var(--zst-fg) 12%, transparent);
+}
+
+#zen-smart-tabs-overlay .zst-button-ghost {
+  min-height: 30px;
+  padding: 5px 9px;
+  color: var(--zst-fg);
+  background: transparent;
+  border-color: var(--zst-border);
+}
+
+#zen-smart-tabs-overlay .zst-button-busy::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: zst-spin 700ms linear infinite;
+}
+
+@keyframes zst-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#zen-smart-tabs-overlay .zst-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-group-card {
+  overflow: hidden;
+  background: var(--zst-softer);
+  border: 1px solid var(--zst-border);
+  border-radius: 14px;
+}
+
+#zen-smart-tabs-overlay .zst-group-card-disabled {
+  opacity: 0.56;
+}
+
+#zen-smart-tabs-overlay .zst-group-header {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-bottom: 1px solid var(--zst-border);
+}
+
+#zen-smart-tabs-overlay .zst-group-name {
+  min-height: 34px;
+}
+
+#zen-smart-tabs-overlay .zst-tab-list {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+#zen-smart-tabs-overlay .zst-tab-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+#zen-smart-tabs-overlay .zst-tab-row:hover {
+  background: var(--zst-soft);
+}
+
+#zen-smart-tabs-overlay .zst-tab-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#zen-smart-tabs-overlay .zst-tab-title {
+  overflow: hidden;
+  color: var(--zst-fg);
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#zen-smart-tabs-overlay .zst-tab-host {
+  overflow: hidden;
+  color: var(--zst-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#zen-smart-tabs-overlay .zst-ungrouped {
+  padding: 11px 13px;
+  background: var(--zst-softer);
+  border: 1px solid var(--zst-border);
+  border-radius: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-ungrouped summary {
+  color: var(--zst-muted);
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+#zen-smart-tabs-overlay .zst-ungrouped-list {
+  max-height: 210px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-ungrouped-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+
+#zen-smart-tabs-overlay .zst-ungrouped-row small {
+  color: var(--zst-muted);
+}
+
+#zen-smart-tabs-overlay .zst-result-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--zst-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#zen-smart-tabs-overlay .zst-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 13px;
+  font-size: 13px;
+}
+
+#zen-smart-tabs-overlay .zst-result-row + .zst-result-row {
+  border-top: 1px solid var(--zst-border);
+}
+
+#zen-smart-tabs-overlay .zst-result-row span {
+  color: var(--zst-muted);
+}
+
+@media (max-width: 680px) {
+  #zen-smart-tabs-overlay {
+    padding: 10px;
+  }
+
+  #zen-smart-tabs-overlay .zst-panel {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+    border-radius: 14px;
+  }
+
+  #zen-smart-tabs-overlay .zst-header,
+  #zen-smart-tabs-overlay .zst-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  #zen-smart-tabs-overlay .zst-settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #zen-smart-tabs-overlay .zst-group-header {
+    grid-template-columns: 1fr;
+  }
+
+  #zen-smart-tabs-overlay .zst-actions {
+    flex-direction: column-reverse;
+  }
+
+  #zen-smart-tabs-overlay .zst-button {
+    width: 100%;
+  }
+}
