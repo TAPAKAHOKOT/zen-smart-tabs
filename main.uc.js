@@ -68,8 +68,6 @@
         await this.waitFor(
           () =>
             this.window.gBrowser &&
-            this.window.gZenWorkspaces &&
-            this.window.gZenFolders &&
             this.document.querySelector(
               "#zen-sidebar-top-buttons-customization-target"
             ),
