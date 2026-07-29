@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.1.0";
+  const VERSION = "0.2.5";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -172,6 +172,7 @@
         this.toolbarButton = button;
         this.stopWaitingForMountTarget();
         log("Mounted beside Clear.");
+        this.logMountState();
         return;
       }
 
@@ -195,6 +196,29 @@
       this.toolbarButton = button;
       this.stopWaitingForMountTarget();
       log("Mounted in the sidebar toolbar fallback.");
+      this.logMountState();
+    }
+
+    logMountState() {
+      this.window.setTimeout(() => {
+        const button = this.document.getElementById(BUTTON_ID);
+        if (!button) {
+          warn("Mount check: the button was removed after mounting.");
+          return;
+        }
+        const style = this.window.getComputedStyle(button);
+        log("Mount check:", {
+          connected: button.isConnected,
+          parent: button.parentElement?.localName,
+          parentId: button.parentElement?.id || "",
+          parentClass: button.parentElement?.className || "",
+          display: style.display,
+          visibility: style.visibility,
+          opacity: style.opacity,
+          width: style.width,
+          height: style.height,
+        });
+      }, 1_000);
     }
 
     waitForMountTarget() {
