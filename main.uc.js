@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.3.0";
+  const VERSION = "0.3.1";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -148,8 +148,7 @@
         "chromeclass-toolbar-additional",
         "zen-smart-tabs-toolbar-button"
       );
-      button.setAttribute("label", "AI");
-      button.textContent = "AI";
+      button.setAttribute("label", "✦");
       button.setAttribute("aria-label", "Умно сгруппировать вкладки");
       button.setAttribute(
         "tooltiptext",
