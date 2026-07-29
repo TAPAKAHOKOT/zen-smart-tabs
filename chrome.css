@@ -22,8 +22,14 @@
   opacity: 1 !important;
 }
 
+#zen-smart-tabs-button .toolbarbutton-icon {
+  display: none !important;
+}
+
 #zen-smart-tabs-button .toolbarbutton-text {
   display: flex !important;
+  justify-content: center;
+  padding: 0 !important;
   visibility: visible !important;
   opacity: 1 !important;
   color: inherit !important;
