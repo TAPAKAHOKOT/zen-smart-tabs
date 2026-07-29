@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.6";
+  const VERSION = "0.2.7";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -263,6 +263,20 @@
     }
 
     findClearControl() {
+      const visibleClearLabel = [...this.document.querySelectorAll("*")].find(node => {
+        if (node.childElementCount !== 0 || node.closest("menupopup, popup, panel")) {
+          return false;
+        }
+        const text = node.textContent?.trim() || "";
+        return /^(?:↓\s*)?clear$/i.test(text) && node.getClientRects().length > 0;
+      });
+      if (visibleClearLabel) {
+        return (
+          visibleClearLabel.closest("toolbarbutton, button, [role='button']") ||
+          visibleClearLabel.parentElement
+        );
+      }
+
       const selectors = [
         "#zen-sidebar-clear-tabs-button",
         "#zen-clear-tabs-button",
@@ -280,7 +294,7 @@
       return [...this.document.querySelectorAll(
         "button, toolbarbutton, [role='button'], [label], [aria-label], [tooltiptext]"
       )].find(control => {
-        if (control.closest("menupopup, popup, panel")) {
+        if (control.closest("menupopup, popup, panel") || !control.getClientRects().length) {
           return false;
         }
         const label = ["label", "aria-label", "tooltiptext"]
