@@ -7,7 +7,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.5";
+  const VERSION = "0.2.6";
   const CONTROLLER_KEY = "__zenSmartTabsController";
   const TOOLBAR_ITEM_ID = "zen-smart-tabs-toolbar-item";
   const BUTTON_ID = "zen-smart-tabs-button";
@@ -80,6 +80,7 @@
         return;
       }
 
+      this.logClearCandidates();
       this.mountToolbarButton();
       this.initialized = true;
 
@@ -254,7 +255,9 @@
       return (
         clearControl?.closest(".vertical-pinned-tabs-container-separator") ||
         this.document.querySelector(".vertical-pinned-tabs-container-separator") ||
-        clearControl?.parentElement ||
+        (clearControl?.closest("menupopup, popup, panel")
+          ? null
+          : clearControl?.parentElement) ||
         null
       );
     }
@@ -277,6 +280,9 @@
       return [...this.document.querySelectorAll(
         "button, toolbarbutton, [role='button'], [label], [aria-label], [tooltiptext]"
       )].find(control => {
+        if (control.closest("menupopup, popup, panel")) {
+          return false;
+        }
         const label = ["label", "aria-label", "tooltiptext"]
           .map(name => control.getAttribute(name) || "")
           .concat(control.textContent || "")
@@ -284,6 +290,30 @@
           .toLowerCase();
         return /\bclear\b|очист/.test(label);
       });
+    }
+
+    logClearCandidates() {
+      const candidates = [...this.document.querySelectorAll(
+        "button, toolbarbutton, [role='button'], [label], [aria-label], [tooltiptext]"
+      )]
+        .filter(control => {
+          const text = ["label", "aria-label", "tooltiptext"]
+            .map(name => control.getAttribute(name) || "")
+            .concat(control.textContent || "")
+            .join(" ")
+            .toLowerCase();
+          return /\bclear\b|очист/.test(text);
+        })
+        .map(control => ({
+          tag: control.localName,
+          id: control.id || "",
+          label: control.getAttribute("label") || control.textContent?.trim() || "",
+          parent: control.parentElement?.localName || "",
+          parentId: control.parentElement?.id || "",
+          parentClass: control.parentElement?.className || "",
+          hidden: control.hidden,
+        }));
+      log("Clear candidates:", candidates);
     }
 
     cleanup() {
