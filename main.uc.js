@@ -32,7 +32,14 @@
       this.viewBody = null;
       this.closeButton = null;
       this.toolbarItem = null;
+      this.toolbarButton = null;
       this.apiKey = "";
+      this.settings = {
+        model: DEFAULT_MODEL,
+        language: "ru",
+        maxGroups: 6,
+        includePinned: false,
+      };
       this.busy = false;
       this.busyButton = null;
       this.abortController = null;
@@ -71,6 +78,12 @@
       } catch (error) {
         warn("Zen dependencies did not become available:", error.message);
         return;
+      }
+
+      try {
+        await this.waitFor(() => this.findClearControl(), 5_000);
+      } catch {
+        warn("Clear control did not become available in time; using the toolbar fallback.");
       }
 
       if (this.destroyed) {
@@ -146,16 +159,54 @@
       button.setAttribute("aria-label", "Умно сгруппировать вкладки");
       button.setAttribute(
         "tooltiptext",
-        "Умно сгруппировать вкладки текущего пространства"
+        "Умно сгруппировать вкладки текущего пространства\nПКМ — настройки Smart Tabs"
       );
-      button.addEventListener("command", () => this.open());
+      button.addEventListener("command", () => this.startGrouping());
+      button.addEventListener("contextmenu", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.openSettings();
+      });
 
       item.appendChild(button);
-      const separator = target.querySelector(
-        "#zen-sidebar-top-buttons-separator"
-      );
-      target.insertBefore(item, separator || null);
+      const clearControl = this.findClearControl();
+      const clearItem = clearControl?.closest("toolbaritem") || clearControl;
+      if (clearItem?.parentNode) {
+        clearItem.parentNode.insertBefore(item, clearItem);
+      } else {
+        const separator = target.querySelector(
+          "#zen-sidebar-top-buttons-separator"
+        );
+        target.insertBefore(item, separator || null);
+        warn("Clear control was not found; Smart Tabs was added to the sidebar toolbar.");
+      }
       this.toolbarItem = item;
+      this.toolbarButton = button;
+    }
+
+    findClearControl() {
+      const selectors = [
+        "#zen-sidebar-clear-tabs-button",
+        "#zen-clear-tabs-button",
+        "#clear-tabs-button",
+        "[id*='clear-tabs']",
+        "[id*='clearTabs']",
+      ];
+      for (const selector of selectors) {
+        const control = this.document.querySelector(selector);
+        if (control) {
+          return control;
+        }
+      }
+
+      return [...this.document.querySelectorAll("[id], [label], [aria-label], [tooltiptext]")].find(control => {
+        const label = ["label", "aria-label", "tooltiptext"]
+          .map(name => control.getAttribute(name) || "")
+          .concat(control.textContent || "")
+          .join(" ")
+          .toLowerCase();
+        return /\bclear\b|очист/.test(label);
+      });
     }
 
     cleanup() {
@@ -181,6 +232,7 @@
       this.lastUndo = null;
       this.overlay = null;
       this.toolbarItem = null;
+      this.toolbarButton = null;
 
       if (this.window[CONTROLLER_KEY] === this) {
         delete this.window[CONTROLLER_KEY];
@@ -188,7 +240,7 @@
       log("Unloaded and cleared in-memory state.");
     }
 
-    open() {
+    openSettings() {
       if (this.destroyed) {
         return;
       }
@@ -435,7 +487,7 @@
           text: label,
           attrs: { value },
         });
-        if (value === DEFAULT_MODEL) {
+        if (value === this.settings.model) {
           option.selected = true;
         }
         modelSelect.appendChild(option);
@@ -454,6 +506,7 @@
           this.h("option", { text: label, attrs: { value } })
         );
       }
+      languageSelect.value = this.settings.language;
       settingsGrid.appendChild(
         this.makeField("Язык папок", languageSelect)
       );
@@ -465,7 +518,7 @@
           min: "2",
           max: "8",
           step: "1",
-          value: "6",
+          value: String(this.settings.maxGroups),
         },
       });
       settingsGrid.appendChild(
@@ -476,7 +529,7 @@
 
       const includePinned = this.makeCheckbox(
         "Также анализировать обычные закреплённые вкладки",
-        false
+        this.settings.includePinned
       );
       content.appendChild(includePinned.label);
 
@@ -591,13 +644,83 @@
       const language = this.ui.languageSelect?.value || "ru";
 
       this.apiKey = apiKey;
+      this.settings = { model, language, maxGroups, includePinned };
+      return this.runAnalysis({
+        apiKey,
+        model,
+        language,
+        maxGroups,
+        includePinned,
+        triggerButton: this.ui.analyzeButton,
+        inventory,
+      });
+    }
+
+    async startGrouping() {
+      if (this.busy) {
+        return;
+      }
+
+      const apiKey = this.apiKey || this.readEnvironmentKey();
+      if (!apiKey) {
+        this.openSettings();
+        this.showInlineError(
+          "Для первого запуска вставь OpenAI API key. После этого обычный клик по ✨ будет сразу начинать анализ."
+        );
+        return;
+      }
+
+      const inventory = this.collectTabs({
+        includePinned: this.settings.includePinned,
+      });
+      if (inventory.tabs.length < 2) {
+        this.renderAnalysisProgress();
+        this.showInlineError(
+          "Для группировки нужно хотя бы две подходящие вкладки в текущем пространстве."
+        );
+        return;
+      }
+
+      this.apiKey = apiKey;
+      return this.runAnalysis({
+        apiKey,
+        ...this.settings,
+        inventory,
+      });
+    }
+
+    renderAnalysisProgress() {
+      this.setView("Smart Tabs", "Анализирую вкладки текущего пространства.");
+      const content = this.h("div", { className: "zst-stack" });
+      const status = this.h("div", {
+        className: "zst-status",
+        attrs: { role: "status", "aria-live": "polite" },
+      });
+      content.appendChild(status);
+      this.viewBody.appendChild(content);
+      this.ui = { status };
+    }
+
+    async runAnalysis({
+      apiKey,
+      model,
+      language,
+      maxGroups,
+      includePinned,
+      inventory,
+      triggerButton = null,
+    }) {
+      this.renderAnalysisProgress();
       this.tabById = new Map(
         inventory.tabs.map(descriptor => [descriptor.id, descriptor])
       );
       this.showInlineStatus(
         `Отправляю ${inventory.tabs.length} заголовков и доменов в ${model}…`
       );
-      this.setBusy(true, this.ui.analyzeButton, "Анализирую…");
+      if (!triggerButton && this.toolbarButton) {
+        this.toolbarButton.disabled = true;
+      }
+      this.setBusy(true, triggerButton, "Анализирую…");
 
       try {
         const rawProposal = await this.requestGrouping({
@@ -639,6 +762,9 @@
         this.showInlineError(this.humanizeError(error));
       } finally {
         this.abortController = null;
+        if (!triggerButton && this.toolbarButton) {
+          this.toolbarButton.disabled = false;
+        }
       }
     }
 
