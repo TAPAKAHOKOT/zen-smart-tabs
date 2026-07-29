@@ -147,7 +147,7 @@
         "chromeclass-toolbar-additional",
         "zen-smart-tabs-toolbar-button"
       );
-      button.setAttribute("label", "Smart Tabs");
+      button.setAttribute("label", "✨");
       button.setAttribute("aria-label", "Умно сгруппировать вкладки");
       button.setAttribute(
         "tooltiptext",
@@ -159,6 +159,11 @@
         event.stopPropagation();
         this.openSettings();
       });
+      button.style.setProperty("display", "inline-flex", "important");
+      button.style.setProperty("visibility", "visible", "important");
+      button.style.setProperty("opacity", "1", "important");
+      button.style.setProperty("min-width", "32px", "important");
+      button.style.setProperty("min-height", "32px", "important");
 
       if (clearHost) {
         const clearIsDirectChild = clearControl?.parentNode === clearHost;

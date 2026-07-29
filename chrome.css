@@ -5,16 +5,18 @@
 }
 
 #zen-smart-tabs-button {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   min-width: 32px;
   min-height: 32px;
   margin-inline: 0 4px;
-  list-style-image: url("chrome://browser/skin/zen-icons/sparkles.svg");
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
 }
 
 #zen-smart-tabs-button .toolbarbutton-text {
-  display: none;
+  display: inline-block !important;
+  font-size: 18px;
+  line-height: 1;
 }
 
 #zen-smart-tabs-overlay,
