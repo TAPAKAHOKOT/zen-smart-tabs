@@ -33,6 +33,8 @@
       this.closeButton = null;
       this.toolbarItem = null;
       this.toolbarButton = null;
+      this.mountObserver = null;
+      this.mountTimer = null;
       this.apiKey = "";
       this.settings = {
         model: DEFAULT_MODEL,
@@ -66,25 +68,12 @@
 
       try {
         await this.waitFor(
-          () =>
-            this.window.gBrowser &&
-            this.document.querySelector(
-              "#zen-sidebar-top-buttons-customization-target"
-            ),
+          () => this.window.gBrowser,
           20_000
         );
       } catch (error) {
         warn("Zen dependencies did not become available:", error.message);
         return;
-      }
-
-      try {
-        await this.waitFor(
-          () => this.findClearHost() || this.findClearControl(),
-          5_000
-        );
-      } catch {
-        warn("Clear control did not become available in time; using the toolbar fallback.");
       }
 
       if (this.destroyed) {
@@ -134,15 +123,22 @@
     }
 
     mountToolbarButton() {
-      this.document.getElementById(TOOLBAR_ITEM_ID)?.remove();
-      this.document.getElementById(BUTTON_ID)?.remove();
+      if (this.destroyed || this.toolbarButton?.isConnected) {
+        return;
+      }
 
+      const clearControl = this.findClearControl();
+      const clearHost = this.findClearHost(clearControl);
       const target = this.document.querySelector(
         "#zen-sidebar-top-buttons-customization-target"
       );
-      if (!target) {
-        throw new Error("Zen sidebar toolbar target was not found");
+      if (!clearHost && !target) {
+        this.waitForMountTarget();
+        return;
       }
+
+      this.document.getElementById(TOOLBAR_ITEM_ID)?.remove();
+      this.document.getElementById(BUTTON_ID)?.remove();
 
       const button = this.document.createXULElement("toolbarbutton");
       button.id = BUTTON_ID;
@@ -164,13 +160,13 @@
         this.openSettings();
       });
 
-      const clearControl = this.findClearControl();
-      const clearHost = this.findClearHost(clearControl);
       if (clearHost) {
         const clearIsDirectChild = clearControl?.parentNode === clearHost;
         clearHost.insertBefore(button, clearIsDirectChild ? clearControl : null);
         this.toolbarItem = button;
         this.toolbarButton = button;
+        this.stopWaitingForMountTarget();
+        log("Mounted beside Clear.");
         return;
       }
 
@@ -192,12 +188,45 @@
       }
       this.toolbarItem = item;
       this.toolbarButton = button;
+      this.stopWaitingForMountTarget();
+      log("Mounted in the sidebar toolbar fallback.");
+    }
+
+    waitForMountTarget() {
+      if (this.mountObserver || this.mountTimer || this.destroyed) {
+        return;
+      }
+
+      const attemptMount = () => this.mountToolbarButton();
+      this.mountObserver = new this.window.MutationObserver(() => attemptMount());
+      this.mountObserver.observe(this.document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+      this.mountTimer = this.window.setTimeout(() => {
+        this.mountObserver?.disconnect();
+        this.mountObserver = null;
+        this.mountTimer = null;
+        warn("Could not find a Smart Tabs mount target after 30 seconds.");
+      }, 30_000);
+      log("Waiting for the Clear container to appear.");
+    }
+
+    stopWaitingForMountTarget() {
+      this.mountObserver?.disconnect();
+      this.mountObserver = null;
+      if (this.mountTimer) {
+        this.window.clearTimeout(this.mountTimer);
+        this.mountTimer = null;
+      }
     }
 
     findClearHost(clearControl = null) {
       return (
         clearControl?.closest(".vertical-pinned-tabs-container-separator") ||
-        this.document.querySelector(".vertical-pinned-tabs-container-separator")
+        this.document.querySelector(".vertical-pinned-tabs-container-separator") ||
+        clearControl?.parentElement ||
+        null
       );
     }
 
@@ -216,7 +245,9 @@
         }
       }
 
-      return [...this.document.querySelectorAll("[id], [label], [aria-label], [tooltiptext]")].find(control => {
+      return [...this.document.querySelectorAll(
+        "button, toolbarbutton, [role='button'], [label], [aria-label], [tooltiptext]"
+      )].find(control => {
         const label = ["label", "aria-label", "tooltiptext"]
           .map(name => control.getAttribute(name) || "")
           .concat(control.textContent || "")
@@ -239,6 +270,7 @@
 
       this.document.removeEventListener("keydown", this.boundKeydown, true);
       this.window.removeEventListener("unload", this.boundWindowUnload);
+      this.stopWaitingForMountTarget();
       this.overlay?.remove();
       this.toolbarItem?.remove();
       this.document.getElementById(TOOLBAR_ITEM_ID)?.remove();

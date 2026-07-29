@@ -3,9 +3,9 @@
   "name": "Zen Smart Tabs",
   "description": "AI grouping of current-space tabs into native Zen folders using the OpenAI Responses API.",
   "author": "Local user",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "createdAt": "2026-07-29",
-  "updatedAt": "2026-07-29T11:31:21+02:00",
+  "updatedAt": "2026-07-29T11:34:05+02:00",
   "fork": [
     "zen"
   ],
